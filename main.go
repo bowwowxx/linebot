@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/leekchan/timeutil"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -12,6 +13,10 @@ import (
 	"time"
 )
 
+const (
+	imageURL = "https://avatars1.githubusercontent.com/u/6083986"
+)
+
 func random(min, mac int) int {
 	rand.Seed(time.Now().Unix())
 	return rand.Intn(mac-min) + min
@@ -19,13 +24,17 @@ func random(min, mac int) int {
 
 func main() {
 	cl, err := linebot.New(
-		"xx",
-		"xx",
+		"secret",
+		"access token",
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
-	imageURL := "https://avatars1.githubusercontent.com/u/6083986"
+	var (
+		httpAddr = flag.String("url", ":8080", "HTTP service address:localhost:8080")
+	)
+	flag.Parse()
+
 	template := linebot.NewCarouselTemplate(
 		linebot.NewCarouselColumn(
 			imageURL, "bowwow.tips", "bowwow lin",
@@ -62,7 +71,7 @@ func main() {
 							cl.LeaveRoom(re.Source.RoomID).Do()
 						}
 					} else if msg.Text == "help" {
-						cl.ReplyMessage(re.ReplyToken, linebot.NewTextMessage("help\n・[image:画像url]=從圖片網址發送圖片\n・[speed]=測回話速度\n・[groupid]=發送GroupID\n・[roomid]=發送RoomID\n・[byebye]=取消訂閱\n・[about]=作者\n・[me]=發送發件人信息\n・[test]=test bowwow是否正常\n・[now]=現在時間\n・[mid]=mid\n・[Sticker]=隨機圖片\n\n[其他機能]\n位置測試\n發送郵票並返回ID\n加入時發送消息")).Do()
+						cl.ReplyMessage(re.ReplyToken, linebot.NewTextMessage("help\n・[image:画像url]=從圖片網址發送圖片\n・[speed]=測回話速度\n・[groupid]=發送GroupID\n・[roomid]=發送RoomID\n・[byebye]=取消訂閱\n・[about]=作者\n・[me]=發送發件人信息\n・[test]=test bowwow是否正常\n・[now]=現在時間\n・[mid]=mid\n・[sticker]=隨機圖片\n\n[其他機能]\n位置測試\n捉貼圖ID\n加入時發送消息")).Do()
 					} else if msg.Text == "check" {
 						fmt.Println(msg)
 					} else if msg.Text == "now" {
@@ -76,11 +85,11 @@ func main() {
 					} else if msg.Text == "hidden" {
 						cl.ReplyMessage(re.ReplyToken, linebot.NewTextMessage("hidden")).Do()
 					} else if msg.Text == "bowwow" {
-						_, err := cl.ReplyMessage(re.ReplyToken, linebot.NewImageMessage("https://avatars1.githubusercontent.com/u/6083986", "https://avatars1.githubusercontent.com/u/6083986")).Do()
+						_, err := cl.ReplyMessage(re.ReplyToken, linebot.NewImageMessage(imageURL, imageURL)).Do()
 						if err != nil {
 							log.Fatal(err)
 						}
-					} else if msg.Text == "Sticker" {
+					} else if msg.Text == "sticker" {
 						stid := random(180, 259)
 						stidx := strconv.Itoa(stid)
 						_, err := cl.ReplyMessage(re.ReplyToken, linebot.NewStickerMessage("3", stidx)).Do()
@@ -111,8 +120,8 @@ func main() {
 								}
 							}
 						}
-					} else if res := strings.Contains(msg.Text, "Hello"); res == true {
-						cl.ReplyMessage(re.ReplyToken, linebot.NewTextMessage("Hello!"), linebot.NewTextMessage("my name is bowwow")).Do()
+					} else if res := strings.Contains(msg.Text, "hello"); res == true {
+						cl.ReplyMessage(re.ReplyToken, linebot.NewTextMessage("hello!"), linebot.NewTextMessage("my name is bowwow")).Do()
 					} else if res := strings.Contains(msg.Text, "image:"); res == true {
 						image_url := strings.Replace(msg.Text, "image:", "", -1)
 						cl.ReplyMessage(re.ReplyToken, linebot.NewImageMessage(image_url, image_url)).Do()
@@ -134,7 +143,7 @@ func main() {
 			}
 		}
 	})
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(*httpAddr, nil); err != nil {
 		log.Fatal(err)
 	}
 }
