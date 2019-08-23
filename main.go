@@ -1,13 +1,14 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"github.com/leekchan/timeutil"
 	"github.com/line/line-bot-sdk-go/linebot"
+	"github.com/timest/env"
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -17,28 +18,44 @@ const (
 	imageURL = "https://avatars1.githubusercontent.com/u/6083986"
 )
 
+type config struct {
+	HostPort string `default:":8080"`
+	IsDebug  bool   `env:"DEBUG"`
+	Secret   string `default:"xx"`
+	Token    string `default:"xx"`
+	Tipshost string `default:"https://bowwow.tips"`
+	Timeout  time.Duration
+}
+
 func random(min, mac int) int {
 	rand.Seed(time.Now().Unix())
 	return rand.Intn(mac-min) + min
 }
 
 func main() {
+	cfg := new(config)
+	err := env.Fill(cfg)
+
+	cfg.HostPort = os.Getenv("HostPort")
+	cfg.Secret = os.Getenv("LineSecret")
+	cfg.Token = os.Getenv("LineToken")
+
+	fmt.Println("Port:", cfg.HostPort)
+	fmt.Println("Secret:", cfg.Secret)
+	fmt.Println("Token:", cfg.Token)
+
 	cl, err := linebot.New(
-		"secret",
-		"access token",
+		cfg.Secret,
+		cfg.Token,
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
-	var (
-		httpAddr = flag.String("url", ":8080", "HTTP service address:localhost:8080")
-	)
-	flag.Parse()
 
 	template := linebot.NewCarouselTemplate(
 		linebot.NewCarouselColumn(
 			imageURL, "bowwow.tips", "bowwow lin",
-			linebot.NewURIAction("bowwow", "https://bowwow.tips"),
+			linebot.NewURIAction("bowwow", cfg.Tipshost),
 		),
 	)
 	http.HandleFunc("/callback", func(w http.ResponseWriter, req *http.Request) {
@@ -143,7 +160,7 @@ func main() {
 			}
 		}
 	})
-	if err := http.ListenAndServe(*httpAddr, nil); err != nil {
+	if err := http.ListenAndServe(cfg.HostPort, nil); err != nil {
 		log.Fatal(err)
 	}
 }
