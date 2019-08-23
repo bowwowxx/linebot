@@ -36,7 +36,6 @@ func main() {
 	cfg := new(config)
 	err := env.Fill(cfg)
 
-	cfg.HostPort = os.Getenv("HostPort")
 	cfg.Secret = os.Getenv("LineSecret")
 	cfg.Token = os.Getenv("LineToken")
 
