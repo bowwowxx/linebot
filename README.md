@@ -1,8 +1,14 @@
-# linebot
-check line-bot-sdk-go
+# Linebot
+**Test golane line-bot-sdk**  
+
+### 1.Use ngrok tunnels to localhost
+
+### 2.Run line bot
+ 
 ```
-https://github.com/line/line-bot-sdk-go
+go run main.go
 ```
+
  **Result：**
   ![mole](https://github.com/bowwowxx/linebot/blob/master/demo.jpg)  
 
