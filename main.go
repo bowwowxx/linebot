@@ -43,6 +43,7 @@ func main() {
 	fmt.Println("Port:", cfg.HostPort)
 	fmt.Println("Secret:", cfg.Secret)
 	fmt.Println("Token:", cfg.Token)
+	fmt.Println("Tipshost:", cfg.Tipshost)
 
 	cl, err := linebot.New(
 		cfg.Secret,
